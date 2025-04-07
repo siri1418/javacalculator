@@ -1,0 +1,22 @@
+pipeline {
+    agent any
+
+    triggers {
+        githubPush()  // webhook trigger
+    }
+
+    stages {
+        stage('Clone Repository') {
+            steps {
+                git branch: 'develop', url: 'https://github.com/siri1418/javacalculator.git'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                echo 'Running build...'
+            }
+        }
+    }
+}
+
