@@ -2,7 +2,52 @@ pipeline {
     agent any
 
     triggers {
-        githubPush()  // Webhooktrigger
+        pipeline {
+    agent any
+
+    environment {
+        SONAR_TOKEN = credentials('newsonar')
+    }
+
+    triggers {
+        githubPush()
+    }
+
+    stages {
+        stage('Clone Repository') {
+            steps {
+                git branch: 'develop', url: 'https://github.com/siri1418/javacalculator.git'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                echo 'Compiling Java files...'
+                sh '''
+                    mkdir -p target/classes
+                    find . -name "*.java" > sources.txt
+                    javac -cp "/opt/libs/*" -d target/classes @sources.txt
+                '''
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('sonar') {
+                    sh '''
+                        /opt/sonar-scanner/bin/sonar-scanner \
+                          -Dsonar.projectKey=calculator \
+                          -Dsonar.sources=. \
+                          -Dsonar.java.binaries=target/classes \
+                          -Dsonar.host.url=http://3.93.198.152:9000 \
+                          -Dsonar.login=$SONAR_TOKEN
+                    '''
+                }
+            }
+        }
+    }
+}
+githubPush()  // Webhooktrigger
     }
 
     stages {
