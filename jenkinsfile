@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     triggers {
-        githubPush()  // Webhook trigger
+        githubPush()  // Webhooktrigger
     }
 
     stages {
